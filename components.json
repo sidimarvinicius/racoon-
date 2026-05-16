@@ -1,0 +1,530 @@
+'use client';
+
+import { useState } from 'react';
+import { ChevronDown, Send, Brain, Zap, Heart, DollarSign, AlertCircle, MessageCircle, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { BiblicalMessage } from '@/components/biblical-message';
+
+export default function Home() {
+  const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'echo'; content: string }>>([
+    { role: 'echo', content: 'Oi! Eu sou o Echo. Fico muito feliz que você esteja aqui. 👋' },
+    { role: 'echo', content: 'Quero te conhecer de verdade pra poder te ajudar melhor. Me conta: qual é o principal motivo que te trouxe aqui?' },
+  ]);
+  const [chatInput, setChatInput] = useState('');
+  const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
+
+  // Respostas simuladas do Echo
+  const echoResponses: { [key: string]: string[] } = {
+    'emagrec': ['Entendo! Vamos trabalhar com emagrecimento. Quando foi a última vez que você CONSEGUIU manter o peso?', 'Perfeito. Vou criar um plano realista pra você, sem dietas extremas. Confia em mim.'],
+    'ansied': ['A ansiedade é real, mas podemos lidar com ela. Quantos anos você lida com isso?', 'Vamos começar com técnicas práticas. Você prefere exercício físico ou meditação?'],
+    'produt': ['Foco é sobre sistemas, não willpower. Qual é seu maior distrator?', 'Vou te ajudar a criar uma rotina que cola. Começamos segunda?'],
+    'finanç': ['Finanças é mais sobre psicologia que números. Como você se sente com dinheiro?', 'Vamos organizar seu orçamento de forma realista e sustentável.'],
+    'default': ['Entendi! Vou te ajudar com isso. Pode contar comigo! 💪', 'Você está no caminho certo ao buscar ajuda. Vamos começar?'],
+  };
+
+  const sendMessage = () => {
+    if (!chatInput.trim()) return;
+
+    const userMessage = chatInput.toLowerCase();
+    setChatMessages([...chatMessages, { role: 'user', content: chatInput }]);
+
+    // Simular digitação
+    setTimeout(() => {
+      let response = echoResponses['default'][0];
+      
+      if (userMessage.includes('emagrec') || userMessage.includes('peso') || userMessage.includes('dieta')) {
+        response = echoResponses['emagrec'][0];
+      } else if (userMessage.includes('ansied') || userMessage.includes('estress') || userMessage.includes('nervos')) {
+        response = echoResponses['ansied'][0];
+      } else if (userMessage.includes('produt') || userMessage.includes('foco') || userMessage.includes('trabalh')) {
+        response = echoResponses['produt'][0];
+      } else if (userMessage.includes('finanç') || userMessage.includes('dinheiro') || userMessage.includes('gasto')) {
+        response = echoResponses['finanç'][0];
+      }
+
+      setChatMessages(prev => [...prev, { role: 'echo', content: response }]);
+    }, 1200);
+
+    setChatInput('');
+  };
+
+  const modes = [
+    {
+      icon: <Zap className="w-8 h-8" />,
+      title: 'Emagrecimento',
+      description: 'Dieta realista, hábitos duradouros, motivação constante.',
+      color: 'from-orange-500/20 to-red-500/20',
+    },
+    {
+      icon: <Brain className="w-8 h-8" />,
+      title: 'Mente',
+      description: 'Ansiedade, overthinking, solidão, gestão emocional.',
+      color: 'from-purple-500/20 to-blue-500/20',
+    },
+    {
+      icon: <Zap className="w-8 h-8" />,
+      title: 'Foco',
+      description: 'Produtividade, eliminar distrações, atingir metas.',
+      color: 'from-yellow-500/20 to-orange-500/20',
+    },
+    {
+      icon: <DollarSign className="w-8 h-8" />,
+      title: 'Finanças',
+      description: 'Orçamento, dívidas, investimentos, comportamento com dinheiro.',
+      color: 'from-green-500/20 to-emerald-500/20',
+    },
+    {
+      icon: <AlertCircle className="w-8 h-8" />,
+      title: 'Crise',
+      description: 'Momento difícil? Echo está aqui 24h pra estabilizar e ajudar.',
+      color: 'from-red-500/20 to-pink-500/20',
+    },
+  ];
+
+  const testimonials = [
+    {
+      name: 'Carolina M.',
+      age: 31,
+      city: 'Curitiba',
+      text: 'Perdi 5kg em 6 semanas. O Echo me cobra todo dia e ajusta conforme minha realidade. Melhor investimento que fiz.',
+      result: '↓ 5kg',
+    },
+    {
+      name: 'Rafael T.',
+      age: 28,
+      city: 'São Paulo',
+      text: 'Finalmente consigo desabafar tudo sem medo. Já me ajudou mais que várias sessões de terapia.',
+      result: 'Mais paz',
+    },
+    {
+      name: 'Marina S.',
+      age: 35,
+      city: 'Belo Horizonte',
+      text: 'Organizei minha vida financeira em 3 meses. Echo entende de verdade e não dá dicas genéricas.',
+      result: '+3 meses',
+    },
+  ];
+
+  const faqItems = [
+    {
+      id: 'q1',
+      question: 'Echo substitui psicólogo?',
+      answer: 'Não. Echo é um coach e companheiro de IA. Se você tem transtornos clinicamente diagnosticados, combine Echo com terapia profissional. Echo é complemento, não substituição.',
+    },
+    {
+      id: 'q2',
+      question: 'Meus dados estão seguros?',
+      answer: 'Sim, 100%. Todos os dados são criptografados, em servidores seguros, e você pode pedir para deletar tudo quando quiser. Sua privacidade é sagrada.',
+    },
+    {
+      id: 'q3',
+      question: 'Posso cancelar quando quiser?',
+      answer: 'Sim, sem multa, sem burocracia. Você controla tudo. Se quiser sair, é um clique. Mas a gente acredita que você vai amar Echo.',
+    },
+    {
+      id: 'q4',
+      question: 'Como funciona o período de teste grátis?',
+      answer: 'Você ganha 14 dias completos grátis. Não precisa de cartão. Se em 14 dias achar que não é pra você, devolve 100% do seu dinheiro. Sem perguntas.',
+    },
+    {
+      id: 'q5',
+      question: 'Echo funciona sem internet?',
+      answer: 'Não. Echo precisa de conexão com a internet para funcionar. Mas funciona bem em 3G.',
+    },
+    {
+      id: 'q6',
+      question: 'Qual o melhor horário para usar Echo?',
+      answer: 'Qualquer horário. Mas a maioria usa pela manhã (check-in do dia) ou à noite (reflexão do dia). O importante é a consistência.',
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Navbar */}
+      <nav className="fixed top-0 w-full bg-background/80 backdrop-blur-xl border-b border-border z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <div className="text-2xl font-bold font-display text-primary">
+            Echo
+          </div>
+          <a
+            href="/signup"
+            className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-accent transition-colors"
+          >
+            Começar Grátis
+          </a>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="pt-32 pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 opacity-30">
+          <div className="absolute top-20 right-10 w-96 h-96 bg-primary rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Esquerda - Texto */}
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <h1 className="text-5xl lg:text-6xl font-bold font-display leading-tight">
+                Echo
+              </h1>
+              <p className="text-2xl font-display text-muted-foreground">
+                Seu coach pessoal de IA que realmente te conhece.
+              </p>
+            </div>
+
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-md">
+              Emagrecimento, ansiedade, produtividade, relacionamentos ou finanças.
+              Um companheiro que te escuta, lembra de tudo e te ajuda todos os dias.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <a
+                href="/signup"
+                className="px-8 py-4 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-accent transition-all duration-200 transform hover:scale-105 text-center"
+              >
+                Quero meus 14 dias grátis
+              </a>
+              <button className="px-8 py-4 border border-primary text-primary rounded-lg font-semibold hover:bg-primary/10 transition-all">
+                Saiba mais
+              </button>
+            </div>
+
+            <div className="pt-8 space-y-3 text-sm text-muted-foreground">
+              <p className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-accent" />
+                14 dias grátis, sem cartão
+              </p>
+              <p className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-accent" />
+                Cancela quando quiser
+              </p>
+              <p className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-accent" />
+                Privacidade 100% garantida
+              </p>
+            </div>
+          </div>
+
+          {/* Direita - Chat Animado */}
+          <div className="bg-secondary/30 border border-border rounded-2xl p-6 h-96 flex flex-col shadow-2xl backdrop-blur">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border">
+              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-sm font-bold">
+                E
+              </div>
+              <div>
+                <p className="font-semibold text-sm">Echo</p>
+                <p className="text-xs text-accent">Online agora</p>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+              {chatMessages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={cn(
+                      'max-w-xs px-4 py-2 rounded-lg text-sm',
+                      msg.role === 'user'
+                        ? 'bg-primary text-primary-foreground rounded-br-none'
+                        : 'bg-muted text-foreground rounded-bl-none'
+                    )}
+                  >
+                    {msg.content}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex gap-2 mt-auto">
+              <input
+                type="text"
+                placeholder="Sua mensagem..."
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                className="flex-1 bg-input border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              <button
+                onClick={sendMessage}
+                className="p-2 bg-primary text-primary-foreground rounded-lg hover:bg-accent transition-colors"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefícios */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-secondary/20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold font-display mb-4">
+              Por que milhares de pessoas já estão usando Echo?
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Echo combina inteligência artificial com empatia humana para criar um coach verdadeiramente único.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                icon: '🧠',
+                title: 'Memória Real',
+                description: 'Echo lembra tudo que você conta — seus objetivos, dificuldades e vitórias.',
+              },
+              {
+                icon: '🎯',
+                title: 'Coach Multifuncional',
+                description: 'Emagrecimento, mente, foco, finanças e relacionamentos em um só lugar.',
+              },
+              {
+                icon: '⏰',
+                title: 'Sempre Disponível',
+                description: '24 horas por dia, 7 dias por semana. Até 3h da manhã se precisar.',
+              },
+              {
+                icon: '🔒',
+                title: 'Privacidade Total',
+                description: 'Dados criptografados. Nunca vendemos ou usamos para treino.',
+              },
+            ].map((benefit, idx) => (
+              <div key={idx} className="bg-secondary/40 border border-border rounded-xl p-6 hover:border-primary transition-colors">
+                <p className="text-4xl mb-4">{benefit.icon}</p>
+                <h3 className="font-bold text-lg mb-2 font-display">{benefit.title}</h3>
+                <p className="text-muted-foreground text-sm">{benefit.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Modos Especiais */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold font-display mb-4">
+              Echo se adapta a você
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Escolha o modo que melhor se encaixa no seu momento — ou use todos.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {modes.map((mode, idx) => (
+              <div
+                key={idx}
+                className={cn(
+                  'bg-gradient-to-br p-6 rounded-xl border border-border hover:border-primary transition-all duration-300 group cursor-pointer hover:scale-105',
+                  mode.color
+                )}
+              >
+                <div className="text-primary mb-4 group-hover:scale-110 transition-transform">
+                  {mode.icon}
+                </div>
+                <h3 className="font-bold font-display mb-2">{mode.title}</h3>
+                <p className="text-sm text-muted-foreground">{mode.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Depoimentos */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-secondary/20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold font-display mb-4">
+              O que as pessoas estão dizendo
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, idx) => (
+              <div key={idx} className="bg-secondary/40 border border-border rounded-xl p-8 hover:border-primary transition-colors">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="font-bold font-display">{testimonial.name}</h3>
+                    <p className="text-sm text-muted-foreground">{testimonial.age} anos, {testimonial.city}</p>
+                  </div>
+                  <p className="text-2xl font-bold text-accent">{testimonial.result}</p>
+                </div>
+                <p className="text-muted-foreground leading-relaxed italic">"{testimonial.text}"</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Preços */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold font-display mb-4">
+            Escolha seu plano
+          </h2>
+          <p className="text-lg text-muted-foreground mb-12">
+            Começe grátis por 14 dias. Sem cartão. Sem compromisso.
+          </p>
+
+          <div className="bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary rounded-2xl p-12 max-w-lg mx-auto">
+            <div className="inline-block bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold mb-6">
+              Early Access
+            </div>
+
+            <h3 className="text-5xl font-bold font-display mb-2">
+              R$ 29,90
+              <span className="text-lg font-normal text-muted-foreground">/mês</span>
+            </h3>
+            <p className="text-muted-foreground mb-8">
+              ou R$ 19,90/mês no plano anual
+            </p>
+
+            <ul className="space-y-4 mb-12 text-left">
+              {[
+                '14 dias grátis (sem cartão)',
+                'Acesso total a todas as funcionalidades',
+                '5 modos especiais inclusos',
+                'Memória perfeita do Echo',
+                'Cancela quando quiser',
+              ].map((item, idx) => (
+                <li key={idx} className="flex items-center gap-3">
+                  <Check className="w-5 h-5 text-accent flex-shrink-0" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+
+            <button className="w-full py-4 bg-primary text-primary-foreground rounded-lg font-bold hover:bg-accent transition-all transform hover:scale-105">
+              Quero meus 14 dias grátis
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-secondary/20">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold font-display mb-4">
+              Dúvidas frequentes
+            </h2>
+          </div>
+
+          <div className="space-y-4">
+            {faqItems.map((item) => (
+              <div
+                key={item.id}
+                className="bg-secondary/40 border border-border rounded-xl overflow-hidden hover:border-primary transition-colors"
+              >
+                <button
+                  onClick={() => setExpandedFaq(expandedFaq === item.id ? null : item.id)}
+                  className="w-full flex items-center justify-between p-6 hover:bg-secondary/60 transition-colors"
+                >
+                  <h3 className="font-bold font-display text-left text-lg">{item.question}</h3>
+                  <ChevronDown
+                    className={cn(
+                      'w-5 h-5 text-primary transition-transform',
+                      expandedFaq === item.id && 'rotate-180'
+                    )}
+                  />
+                </button>
+
+                {expandedFaq === item.id && (
+                  <div className="px-6 pb-6 border-t border-border pt-4">
+                    <p className="text-muted-foreground leading-relaxed">{item.answer}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Seção Inspiradora - Mensagens Bíblicas */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-secondary/20 to-background">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold font-display mb-4">
+              Encontre inspiração e força 🙏
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Echo acredita que uma vida melhor começa com uma mente e coração em paz.
+              Aqui estão palavras de sabedoria eterna para te guiar.
+            </p>
+          </div>
+
+          <BiblicalMessage />
+
+          <div className="text-center mt-12">
+            <p className="text-sm text-muted-foreground">
+              Cada mensagem foi selecionada com amor para te inspirar na sua jornada.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Final */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 opacity-30">
+          <div className="absolute bottom-0 left-10 w-96 h-96 bg-primary rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-5xl font-bold font-display mb-6">
+            Pronto para ter um coach que te conhece de verdade?
+          </h2>
+          <p className="text-xl text-muted-foreground mb-12">
+            Teste grátis por 14 dias. Sem cartão. Sem compromisso.
+          </p>
+          <a
+            href="/signup"
+            className="inline-block px-12 py-4 bg-primary text-primary-foreground rounded-lg font-bold text-lg hover:bg-accent transition-all transform hover:scale-105"
+          >
+            Comece agora →
+          </a>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-secondary/40 border-t border-border py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+            <div>
+              <h4 className="font-bold font-display mb-4">Echo</h4>
+              <p className="text-sm text-muted-foreground">Seu coach pessoal de IA.</p>
+            </div>
+            <div>
+              <h4 className="font-bold font-display mb-4 text-sm">Produto</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="#" className="hover:text-primary">Começar</a></li>
+                <li><a href="#" className="hover:text-primary">Preços</a></li>
+                <li><a href="#" className="hover:text-primary">Sobre</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-bold font-display mb-4 text-sm">Legal</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="#" className="hover:text-primary">Privacidade</a></li>
+                <li><a href="#" className="hover:text-primary">Termos</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-bold font-display mb-4 text-sm">Contato</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="mailto:hello@echo.ai" className="hover:text-primary">hello@echo.ai</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
+            <p>© 2026 Echo. Feito com ❤️ por Raccoon AI.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

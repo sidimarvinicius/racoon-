@@ -1,0 +1,109 @@
+import { Anthropic } from '@anthropic-ai/sdk';
+import { NextRequest, NextResponse } from 'next/server';
+
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
+// Validação simples de email
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    // Parsear dados do formulário
+    const body = await request.json();
+    const { name, email, objective } = body;
+
+    // Validações básicas
+    if (!name || !email || !objective) {
+      return NextResponse.json(
+        { error: 'Nome, email e objetivo são obrigatórios' },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidEmail(email)) {
+      return NextResponse.json(
+        { error: 'Email inválido' },
+        { status: 400 }
+      );
+    }
+
+    // Verificar API key
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.error('ANTHROPIC_API_KEY não configurada');
+      return NextResponse.json(
+        { error: 'Erro de configuração do servidor' },
+        { status: 500 }
+      );
+    }
+
+    // Enviar mensagem para Claude
+    const message = await anthropic.messages.create({
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 1024,
+      messages: [
+        {
+          role: 'user',
+          content: `Você é o Echo, um coach pessoal de IA. Um novo usuário se cadastrou com as seguintes informações:
+
+Nome: ${name}
+Email: ${email}
+Objetivo principal: ${objective}
+
+Por favor, crie uma mensagem de boas-vindas personalizada para este usuário. A mensagem deve:
+1. Ser acolhedora e inspiradora
+2. Reconhecer o objetivo dele
+3. Prometer apoio e acompanhamento
+4. Incluir uma referência bíblica relacionada ao objetivo (se apropriado)
+5. Ter máximo 3 parágrafos
+
+Mensagem:`,
+        },
+      ],
+    });
+
+    // Extrair resposta do Claude
+    const welcomeMessage = message.content[0].type === 'text' 
+      ? message.content[0].text 
+      : 'Bem-vindo ao Echo!';
+
+    // Aqui você pode salvar os dados em um banco de dados
+    // Por enquanto, vamos apenas retornar a resposta
+    console.log(`Novo cadastro: ${name} (${email}) - Objetivo: ${objective}`);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Cadastro realizado com sucesso!',
+      welcomeMessage: welcomeMessage,
+      user: {
+        name,
+        email,
+        objective,
+        createdAt: new Date().toISOString(),
+      },
+    });
+
+  } catch (error: any) {
+    console.error('Erro ao processar cadastro:', error);
+
+    // Verificar se é erro de autenticação da API
+    if (error.status === 401) {
+      return NextResponse.json(
+        { error: 'Claude API key inválida. Verifique suas credenciais.' },
+        { status: 401 }
+      );
+    }
+
+    return NextResponse.json(
+      { 
+        error: error.message || 'Erro ao processar cadastro. Tente novamente.',
+        details: error.message 
+      },
+      { status: 500 }
+    );
+  }
+}

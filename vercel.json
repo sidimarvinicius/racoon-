@@ -1,0 +1,12 @@
+# Claude API Key
+# 1. Acesse: https://console.anthropic.com
+# 2. Vá para "API keys"
+# 3. Clique "Create Key"
+# 4. Cole a chave aqui (começa com sk-ant-)
+ANTHROPIC_API_KEY=sk-ant-seu-api-key-aqui
+
+# URL da aplicação
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Modo debug (opcional)
+DEBUG_MODE=false
